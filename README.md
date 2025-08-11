@@ -1,4 +1,4 @@
-# Nucleus-Analysis-2025
+# Nuclear-Membrane-Binding-Analysis
 
 This repository contains the image-analysis pipeline and code used to quantify nuclear-membrane invaginations/folds, nuclear volume, and protein nuclear‑membrane **adsorption** for the manuscript:
 
