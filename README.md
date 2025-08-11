@@ -15,8 +15,8 @@ Key capabilities
 - Robust 3D nuclear segmentation from z‑stacks/time‑lapse movies
 - Morphometrics: volume and nuclear‑membrane folds/invaginations
 - Protein rim↔center binding quantification
-- Protein rim↔LMNB1 (median at nuclear mid‑section) binding quantification
-- High‑quality figures/GIFs for papers and talks
+- Protein rim↔LMNB1 (median across nuclear mid‑section) binding quantification
+
 
 ## Visualization of Workflow and Segmentation Results
 
@@ -24,7 +24,11 @@ Key capabilities
 
 ![Segmentation to Metrics Workflow ](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%202.png)
 
-![Sample Movies with Segmentation Masks Overlay](/Pipeline%20Image/workflow.gif)
+![Sample Movies with Segmentation Masks Overlay](/Pipeline%20Image/Lamin%20Folds%20Analysis%20Visualization.png)
+
+![Nuclear Membrane Invagination Analysis Pipeline](/Pipeline%20Image/workflow.gif)
+
+
 
 ## Data flow
 
@@ -32,7 +36,7 @@ Key capabilities
 2. `Nucleus_3D_Analysis_Program.py` loads that `.hdf5`, performs segmentation/quantification (via `Nucleus_Analysis_Module.py`), and writes:
    - Segmentation results (**.hdf5**)
    - Measurements (**.csv**)
-3. `segmentation_result_visualization.py` (optional) visualizes overlays/plots and movies.
+3. `segmentation_result_visualization.py` (optional) generates segmentation‑mask and raw images overlay in Napari Viewer for the users to assess segmentation accuracy.
 
 ---
 
@@ -52,7 +56,7 @@ This repository contains **three analysis programs** with the same layout:
 | `Image_Import.py`                      | Import raw `.nd2` movies → export a consolidated `.hdf5` (NumPy array inside HDF5). |
 | `Nucleus_3D_Analysis_Program.py`       | Load the `.hdf5`, run segmentation & metrics via the module, save results.          |
 | `Nucleus_Analysis_Module.py`           | Reusable functions for I/O, preprocessing, segmentation, feature extraction.        |
-| `segmentation_result_visualization.py` | Plot overlays and summarize segmentation outputs.                                   |
+| `segmentation_result_visualization.py` | Present segmentation alongside intermediate results and raw data in the Napari viewer, enabling users to compare and assess segmentation accuracy.                                 |
 |`aicssegmentation`                      | Contains accessory functions used by the program| 
 
 ---
