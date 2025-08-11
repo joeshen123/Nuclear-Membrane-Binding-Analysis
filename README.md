@@ -18,6 +18,12 @@ Key capabilities
 - Protein rim↔LMNB1 (median at nuclear mid‑section) binding quantification
 - High‑quality figures/GIFs for papers and talks
 
+![Nuclear Segmentation Workflow](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%201.png)
+
+![Segmentation to Metrics Workflow ](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%202.png)
+
+![Sample Movies with Segmentation Masks Overlay](/Pipeline%20Image/workflow.gif)
+
 **Data flow**
 
 1. `Image_Import.py` converts raw **.nd2** movies into a single **.hdf5** (HDF5) file that stores the image stack as a NumPy array.
@@ -104,6 +110,8 @@ conda activate nucleus_analysis
 - **Cannot find selected files**: ensure you launched scripts from the correct program directory.
 - **ND2 import errors**: confirm ND2 reader dependencies from `environment.yaml` are installed.
 - **Large datasets**: reduce ROI or downsample for a quick test; process in chunks if supported.
+
+If you have any questions, feel free to email joeshenz123@gmail.com
 
 ---
 
