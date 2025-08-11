@@ -53,6 +53,7 @@ This repository contains **three analysis programs** with the same layout:
 | `Nucleus_3D_Analysis_Program.py`       | Load the `.hdf5`, run segmentation & metrics via the module, save results.          |
 | `Nucleus_Analysis_Module.py`           | Reusable functions for I/O, preprocessing, segmentation, feature extraction.        |
 | `segmentation_result_visualization.py` | Plot overlays and summarize segmentation outputs.                                   |
+|`aicssegmentation`                      | Contains accessory functions used by the program| 
 
 ---
 
@@ -78,15 +79,15 @@ conda activate nucleus_analysis
 1. **Open the folder** in **Visual Studio Code** or **PyCharm**.
 
 2. **Run** **Image_Import.py**\
-   • You will be prompted to select the raw **.nd2** movie(s).\
-   • The script writes a single **.hdf5** file that contains the image stack as a NumPy array.\
+   • You will be prompted to select the folder that contains all raw **.nd2** movie(s).\
+   • For each ND2 file, the script writes a single **.hdf5** file that contains the image stack as a NumPy array.\
 3. **Run** **Nucleus_3D_Analysis_Program.py**\
-   • Select the `.hdf5` file from step 2.\
+   • Select one `.hdf5` file from step 2.\
    • The program produces:\
    – **Segmentation results** (.hdf5)\
    – **Measurement results** (.csv)
    
-4. *(Optional)* **Run** **segmentation_result_visualization.py** to inspect overlays and export figures/GIFs.
+4. *(Optional)* **Run** **segmentation_result_visualization.py** to inspect overlays and accuracy of segmentation mask.
 
 
 ---
@@ -94,8 +95,8 @@ conda activate nucleus_analysis
 ## 📤 Outputs
 
 - **HDF5 (segmentation)**: labeled/processed image data for downstream checks
-- **CSV (metrics)**: per‑object and/or per‑frame measurements (e.g., volume, circularity, rim/center ratios)
-- **Figures/GIFs**: optional overlays and summaries for QC/communication
+- **CSV (metrics)**: per‑object and/or per‑frame measurements (e.g., volume and protein adsorption ratio )
+
 
 ---
 
