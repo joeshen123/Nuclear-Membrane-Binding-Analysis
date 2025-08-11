@@ -33,6 +33,8 @@ from colorama import Fore
 from skimage.segmentation import clear_border
 import os
 from skimage.exposure import rescale_intensity
+from skimage.filters import threshold_otsu
+
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 
 
@@ -82,7 +84,7 @@ def clean_segmentation(table, seg_image):
 
     label_convert = list(zip(original_label, new_label))
 
-    labelled_image = seg_image.copy() * 1000
+    labelled_image = seg_image.copy().astype(np.uint16) * 1000
 
     for num in np.unique(labelled_image):
         if num != 0 and num not in original_label:
@@ -99,7 +101,7 @@ def clean_segmentation(table, seg_image):
 # Plot mid section area, volume and Protein binding
 # Define a function to plot both section area and protein intensity from panda df
 def plotting(df, marker=None):
-    static_canvas = FigureCanvas(Figure(figsize=(3, 1)))
+    static_canvas = FigureCanvas(Figure(figsize=(4, 1)))
 
     axes = static_canvas.figure.subplots(3, sharex=True)
 
@@ -110,8 +112,8 @@ def plotting(df, marker=None):
 
     axes[0].set_ylabel('Mid Section', fontsize=16, fontweight='bold')
     axes[1].set_ylabel('Volume', fontsize=16, fontweight='bold')
-    axes[2].set_xlabel('Frame', fontsize=16, fontweight='bold')
     axes[2].set_ylabel('Protein Binding', fontsize=16, fontweight='bold')
+    axes[2].set_xlabel('Frame', fontsize=16, fontweight='bold')
 
     num = 0
 
@@ -120,8 +122,8 @@ def plotting(df, marker=None):
         frame_list = df_subset['frame'].tolist()
         area_list = df_subset['mid section area'].tolist()
         volume_list = df_subset['volume'].tolist()
-        # binding_list = df_subset['intensity ratio'].tolist()
         binding_list = df_subset['normalized intensity ratio'].tolist()
+       
         axes[0].plot(frame_list, area_list, color=color[num], label=str(n), marker=marker)
         axes[1].plot(frame_list, volume_list, color=color[num], label=str(n), marker=marker)
         axes[2].plot(frame_list, binding_list, color=color[num], label=str(n), marker=marker)
@@ -168,7 +170,7 @@ from skimage import filters
 
 
 class cell_segment:
-    def __init__(self, Time_lapse_image,sigma=1,mask=None):
+    def __init__(self, Time_lapse_image,sigma=1,mask=None, scale=1,scale_z=1):
         self.image = Time_lapse_image.copy()
         self.Time_pts = Time_lapse_image.shape[0]
 
@@ -179,28 +181,72 @@ class cell_segment:
         self.segmented_object_image = np.zeros(self.image.shape, dtype=np.uint8)
         self.seed_map_list = np.zeros(self.image.shape, dtype=np.uint8)
         self.mask = mask
+        self.scale = scale
+        self.scale_z = scale_z
+    
+       # define function to crop the images
+    def cropping_image (self):
 
+        viewer = napari.Viewer()
+        viewer.add_image(self.image, blending='additive', name="Raw Images", colormap='green', visible=True,
+                         scale=(1, self.scale_z, self.scale, self.scale))
+        rec_layer = viewer.add_shapes(ndim=4, shape_type='rectangle', edge_width=1.5,
+                                       edge_color='b')
+
+        napari.run()
+
+        y1, _, y2, _ = rec_layer.data[0][:, 2]
+        x1, x2, _, _ = rec_layer.data[0][:, 3]
+        y1 = int(y1/self.scale)
+        y2 = int(y2/self.scale)
+
+        x1 = int(x1/self.scale)
+        x2 = int(x2/self.scale)
+
+        if y1 <=0:
+            y1 = 0
+
+        if y1 >= self.image.shape[2]:
+            y1 = self.image.shape[2]
+
+        if y2 <= 0:
+            y2 = 0
+
+        if y2 >= self.image.shape[2]:
+            y2 = self.image.shape[2]
+
+        if x1 <= 0:
+            x1 = 0
+
+        if x1 >= self.image.shape[3]:
+            x1 = self.image.shape[3]
+
+        if x2 <= 0:
+            x2 = 0
+
+        if x2 >= self.image.shape[3]:
+            x2 = self.image.shape[3]
+
+        temp_image = np.zeros(self.image.shape)
+        temp_image[:, :, y1:y2, x1:x2] = self.image[:, :, y1:y2, x1:x2]
+
+        print(self.image[:, :, y1:y2, x1:x2].shape)
+        self.image = temp_image
+        
     # define a function to apply normalization and smooth on Time lapse images
     def img_norm_smooth(self):
         pb = tqdm(range(self.Time_pts), bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.RED, Fore.RESET))
         for t in pb:
             pb.set_description("Smooth and background substraction")
             img = self.image[t].copy()
-            #struct_img = intensity_normalization(img,[2.5,10])
             struct_img = img
-            # Clip data and remove extreme bright speckles
-            #vmin, vmax = np.percentile(img, q=(1, 99))
-
-            #clipped_img = rescale_intensity(img, in_range=(vmin, vmax), out_range=np.uint16)
-
-            # self.structure_img_smooth[t] = edge_preserving_smoothing_3d(img, numberOfIterations=5)
+            
             self.structure_img_smooth[t] = image_smoothing_gaussian_3d(struct_img, sigma=self.smooth_param)
 
             # Use rolling_ball to remove background in Z direction
-            background = rolling_ball(self.structure_img_smooth[t], kernel=ellipsoid_kernel((20, 1, 1), 0.2))
+            background = rolling_ball(self.structure_img_smooth[t], kernel=ellipsoid_kernel((20, 1, 1), 0.1))
             self.structure_img_smooth[t] = self.structure_img_smooth[t] - background
 
-            # define a function to apply Ostu Object thresholding followed by seed-based watershed to each time point
 
     def threshold_Time(self):
         pb = tqdm(range(self.Time_pts), bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.BLUE, Fore.RESET))
@@ -218,11 +264,14 @@ class cell_segment:
 
             bw, object_for_debug = MO(self.structure_img_smooth[t], global_thresh_method='ave', extra_criteria=True,
                                       object_minArea=4000, return_object=True)
+            
+            #threshold = threshold_otsu(self.structure_img_smooth[t])
+            #bw = self.structure_img_smooth[t] > threshold
 
             # Morphological operations to fill holes and remove small/touching objects
-            bw = binary_closing(bw, selem=np.ones((4, 4, 4)))
+            bw = binary_closing(bw, footprint =np.ones((4, 4, 4)))
             bw = hole_filling(bw, 1, 40000, fill_2d=True)
-            bw = remove_small_objects(bw > 0, min_size=8000, connectivity=1, in_place=False)
+            bw = remove_small_objects(bw > 0, min_size=8000, connectivity=1)
             bw = clear_border(bw, mask=self.mask)
 
             self.bw_img[t] = bw
@@ -245,7 +294,7 @@ class cell_segment:
             seg = watershed(edge, markers=label(seed), mask=bw, watershed_line=True)
             seg = clear_border(seg, mask=self.mask)
 
-            seg = remove_small_objects(seg > 0, min_size=10000, connectivity=1, in_place=False)
+            seg = remove_small_objects(seg > 0, min_size=8000, connectivity=1)
             seg = hole_filling(seg, 1, 40000, fill_2d=True)
             final_seg = label(seg)
 
@@ -276,15 +325,10 @@ class cell_tracking:
         for t in pb:
             pb.set_description("Intensity stack smooth")
             img = self.intensity_image_stack_raw[t].copy()
-            # img = img[6:-1]
-            # self.intensity_image_stack[t] = median(img, ball(self.smooth_sigma))
-            # self.intensity_image_stack[t] = image_smoothing_gaussian_slice_by_slice (img, sigma=self.smooth_sigma)
-
+            
             self.intensity_image_stack[t] = image_smoothing_gaussian_3d(img, sigma=self.smooth_sigma)
-            # Use rolling_ball to remove background
-            #background = rolling_ball(self.intensity_image_stack[t], kernel=ellipsoid_kernel((20, 1, 1),0.2))
-            #self.intensity_image_stack[t] = self.intensity_image_stack[t] - background
-
+            
+        
     # function to create pandas table of cell attributes without tracking info
     def create_table_regions(self):
 
@@ -310,15 +354,12 @@ class cell_tracking:
 
                 mid_section_area = max([region.area * (self.x_vol * self.y_vol) for region in
                                         measure.regionprops(label(mid_nucleus_image))])
-                # segmented_image_shell= np.logical_xor(erosion(mid_nucleus_image,selem=disk(5)),erosion(mid_nucleus_image, selem=disk(2)))
 
                 # Draw contour
-                segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, selem=disk(2)),
-                                                       erosion(mid_nucleus_image, selem=disk(5)))
-                bg_segmented_image_shell = mid_nucleus_image
-                bg_segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, selem=disk(12)),
-                                                          erosion(mid_nucleus_image, selem=disk(15)))
-                # bg_segmented_image_shell = np.logical_xor(dilation(mid_nucleus_image, selem=disk(4)), dilation(mid_nucleus_image, selem=disk(7)))
+                segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, footprint=disk(2)),
+                                                       erosion(mid_nucleus_image, footprint=disk(5)))
+                bg_segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, footprint=disk(12)),
+                                                          erosion(mid_nucleus_image, footprint=disk(15)))
 
                 labels = region.label
                 intensity_single = self.intensity_image_stack[n]
@@ -326,6 +367,8 @@ class cell_tracking:
                 intensity_median = np.median(intensity_image[segmented_image_shell == True])
 
                 intensity_background = np.median(intensity_image[bg_segmented_image_shell == True])
+                 
+                
                 # intensity_background = np.median(intensity_image[int(y_row),int(x_col)])
 
                 intensity_median_ratio = intensity_median / intensity_background
@@ -348,7 +391,7 @@ class cell_tracking:
                                                   'intensity', 'intensity ratio'])
 
     # function to track subsequent frame
-    def tracking(self, s_range=130, stop=2, step=0.95, gap=8, pos=['x', 'y', 'z']):
+    def tracking(self, s_range=130, stop=2, step=0.95, gap=1, pos=['x', 'y', 'z']):
         self.track_table = tp.link_df(self.positions_table, s_range, adaptive_stop=stop, adaptive_step=step, memory=gap,
                                       pos_columns=pos)
         print(self.track_table)
@@ -420,10 +463,10 @@ class cell_tracking:
 
                 # Draw contours
 
-                segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, selem=disk(2)),
-                                                       erosion(mid_nucleus_image, selem=disk(5)))
-                bg_segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, selem=disk(12)),
-                                                          erosion(mid_nucleus_image, selem=disk(15)))
+                segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, footprint=disk(2)),
+                                                       erosion(mid_nucleus_image, footprint=disk(5)))
+                bg_segmented_image_shell = np.logical_xor(erosion(mid_nucleus_image, footprint=disk(12)),
+                                                          erosion(mid_nucleus_image, footprint=disk(15)))
                 # bg_segmented_image_shell = np.logical_xor(dilation(mid_nucleus_image, selem=disk(4)), dilation(mid_nucleus_image, selem=disk(7)))
 
                 self.contour_image_crop[t, mid_z, :, :] += segmented_image_shell
@@ -433,12 +476,13 @@ class cell_tracking:
     # function to normalize binding intensity to 1st frame
     def binding_normalize(self):
         self.track_table['normalized intensity ratio'] = self.track_table['intensity ratio']
-
         all_labels = self.track_table.particle.unique()
 
         for label in all_labels:
             norm_value = self.track_table.loc[self.track_table.particle == label, 'intensity ratio'].iloc[0]
             self.track_table.loc[self.track_table.particle == label, 'normalized intensity ratio'] = \
             self.track_table.loc[self.track_table.particle == label, 'normalized intensity ratio'] / norm_value
+
+
 
 

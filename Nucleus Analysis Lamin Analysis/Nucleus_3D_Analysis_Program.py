@@ -16,42 +16,22 @@ my_filetypes = [('all files', '.*'),('Image files', '.hdf5')]
 filename = filedialog.askopenfilenames(parent = root, title='Please Select a File', filetypes = my_filetypes)[0]
 print(filename)
 
-'''
-from aicsimageio import AICSImage
-img = AICSImage(filename)
-ER_image = img.get_image_data("TZYX",C=2)
-'''
 
 f = h5py.File(filename, 'r')
 
-#Ask for cell types
-cell_answer = messagebox.askyesno("Question","Do you want to use Lamin B1 as marker for segmentation?")
 
-if cell_answer == True:
-    seg_image = f['488 Channel'][:]
-    cpla2_intensity_image = f['561 Channel'][:]
+seg_image = f['488 Channel'][:]
+cpla2_intensity_image = f['561 Channel'][:]
 
-    try:
-      x_pixel, y_pixel, z_step = f['voxel_info']
+try:
+    x_pixel, y_pixel, z_step = f['voxel_info']
+    print([x_pixel,y_pixel,z_step])
 
-    except:
-        voxel_info = simpledialog.askstring("Question", "Please specify voxel info (x,y,z)")
-        x_pixel, y_pixel, z_step = [float(voxel) for voxel in voxel_info.split(',')]
+except:
+    voxel_info = simpledialog.askstring("Question", "Please specify voxel info (x,y,z)")
+    x_pixel, y_pixel, z_step = [float(voxel) for voxel in voxel_info.split(',')]
 
-    cells = 'Hela'
-else:
-    seg_image = f['561 Channel'][:]
-    cpla2_intensity_image = f['561 Channel'][:]
-
-    try:
-        x_pixel, y_pixel, z_step = f['voxel_info']
-
-    except:
-        voxel_info = simpledialog.askstring("Question", "Please specify voxel info (x,y,z)")
-        x_pixel, y_pixel, z_step = [float(voxel) for voxel in voxel_info.split(',')]
-
-    cells = 'A549'
-
+    
 
 #Make a mask to clear border
 from skimage.segmentation import clear_border
@@ -64,18 +44,23 @@ for n in range(mask.shape[0]):
    im_slice[:,-1] = 0
    im_slice[-1,:] = 0
 
-#mask[0,:,:] = 0
-#mask[-1,:,:] = 0
+
 mask = mask.astype(bool)
 
 
 #Smooth and 3D Watershed Segmentation
-track = cell_segment(seg_image,mask=mask)
+track = cell_segment(seg_image,mask=mask,scale=x_pixel,scale_z=z_step)
+
+crop_answer = messagebox.askyesno("Question","Do you want to crop the movie?")
+
+if crop_answer == True:
+    track.cropping_image()
+    
 track.img_norm_smooth()
 track.threshold_Time()        
 
 #Tracking and Quantification
-Segment_tracker = cell_tracking(track.segmented_object_image, cpla2_intensity_image,smooth_sigma = 1, x_vol = x_pixel, y_vol= y_pixel, z_vol = z_step)
+Segment_tracker = cell_tracking(track.segmented_object_image,track.structure_img_smooth, cpla2_intensity_image,smooth_sigma = 1, x_vol = x_pixel, y_vol= y_pixel, z_vol = z_step)
 Segment_tracker.intensity_stack_smooth()
 Segment_tracker.create_table_regions()
 print(Segment_tracker.positions_table)
@@ -86,10 +71,9 @@ Segment_tracker.crop_contour()
 Segment_tracker.binding_normalize()
 
 #Visualize in Napari
-Napari_Viewer(track.structure_img_smooth, Segment_tracker.intensity_image_stack_raw,
-                 Segment_tracker.intensity_image_stack, track.segmented_object_image, track.bw_img, track.seed_map_list,
-                 Segment_tracker.contour_image_crop, Segment_tracker.segmented_image_crop, Segment_tracker.track_points,
-                 Segment_tracker.track_table,x_pixel,y_pixel,z_step)
+Napari_Viewer(track.image, Segment_tracker.intensity_image_stack_raw, Segment_tracker.intensity_image_stack, track.segmented_object_image, track.bw_img, Segment_tracker.filament_image_crop,
+              Segment_tracker.skeleton_image_crop, track.seed_map_list, Segment_tracker.branch_point_crop,Segment_tracker.contour_image_crop, Segment_tracker.segmented_image_crop, 
+              Segment_tracker.track_points, Segment_tracker.track_table,x_pixel,y_pixel,z_step)
 
 track_table = Segment_tracker.track_table
 
@@ -108,7 +92,7 @@ while del_answer == True:
 
    #Visualize in Napari again for double check
    Napari_Viewer(track.structure_img_smooth, Segment_tracker.intensity_image_stack_raw,
-                 Segment_tracker.intensity_image_stack, track.segmented_object_image, track.bw_img, track.seed_map_list,
+                 Segment_tracker.intensity_image_stack, track.segmented_object_image, track.bw_img, track.seed_map_list, Segment_tracker.branch_point_crop,
                  Segment_tracker.contour_image_crop, Segment_tracker.segmented_image_crop, Segment_tracker.track_points,
                  track_table,x_pixel,y_pixel,z_step)
 
@@ -125,8 +109,11 @@ seg_save_name='{File_Name}_segmentation_result.hdf5'.format(File_Name = File_sav
 with h5py.File(seg_save_name, "w") as f:
       f.create_dataset('Contour Image', data = Segment_tracker.contour_image_crop, compression = 'gzip')
       f.create_dataset('Segmented Object', data = Segment_tracker.segmented_image_crop, compression = 'gzip')
+      f.create_dataset('Filament Segmentation', data = Segment_tracker.filament_image_crop, compression = 'gzip')
+      f.create_dataset('Skeletons', data = Segment_tracker.skeleton_image_crop, compression = 'gzip')
       f.create_dataset('thresholded image', data = track.bw_img, compression = 'gzip')
       f.create_dataset('Seed Map', data = track.seed_map_list, compression = 'gzip')
+      f.create_dataset('branch points', data = Segment_tracker.branch_point_crop, compression = 'gzip')
 
 #Save quantification to csv
 table_save_name = '{File_Name}_result.csv'.format(File_Name = File_save_names)
