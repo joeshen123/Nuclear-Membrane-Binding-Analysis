@@ -44,9 +44,12 @@ Key capabilities
 
 This repository contains **three analysis programs** with the same layout:
 
-- **Invagination/Fold analysis + Volume Analysis**
-- **Rim vs nucleoplasm binding ratio + Volume Analysis**
-- **Rim vs LMNB1 (median at mid‑section) binding ratio + Volume Analysis**
+| Directory                              | Description                                                                   |
+| -------------------------------------- | ----------------------------------------------------------------------------------- |
+|`**Nucleus Analysis Lamin Analysis** `|**Invagination/Fold analysis +Rim vs nucleoplasm binding ratio+ Volume Analysis**|
+|`**Nucleus Analysis Binding Over Nucleoplasm**` | **Rim vs nucleoplasm binding ratio + Volume Analysis**|
+|`**Nucleus Analysis Binding Over Lamin Control**`|**Rim vs LMNB1 (LMNB1 intensity across mid‑section) binding ratio + Volume Analysis**| 
+
 
 > Each program directory includes the files below.
 
