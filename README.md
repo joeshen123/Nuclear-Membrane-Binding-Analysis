@@ -46,9 +46,9 @@ This repository contains **three analysis programs** with the same layout:
 
 | Directory                              | Description                                                                   |
 | -------------------------------------- | ----------------------------------------------------------------------------------- |
-|`**Nucleus Analysis Lamin Analysis** `|**Invagination/Fold analysis +Rim vs nucleoplasm binding ratio+ Volume Analysis**|
-|`**Nucleus Analysis Binding Over Nucleoplasm**` | **Rim vs nucleoplasm binding ratio + Volume Analysis**|
-|`**Nucleus Analysis Binding Over Lamin Control**`|**Rim vs LMNB1 (LMNB1 intensity across mid‑section) binding ratio + Volume Analysis**| 
+|`Nucleus Analysis Lamin Analysis`|**Invagination/Fold analysis +Rim vs nucleoplasm binding ratio+ Volume Analysis**|
+|`Nucleus Analysis Binding Over Nucleoplasm` | **Rim vs nucleoplasm binding ratio + Volume Analysis**|
+|`Nucleus Analysis Binding Over Lamin Control`|**Rim vs LMNB1 (LMNB1 intensity across mid‑section) binding ratio + Volume Analysis**| 
 
 
 > Each program directory includes the files below.
