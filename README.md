@@ -3,8 +3,7 @@
 This repository contains the image-analysis pipeline and code used to quantify nuclear-membrane invaginations/folds, nuclear volume, and protein nuclear‑membrane adsorption for the manuscript:
 
 **Endoplasmic reticulum disruption stimulates nuclear membrane mechanotransduction.**
-
-**DOI: https://www.nature.com/articles/s41556-025-01820-9**
+<br>**DOI: https://www.nature.com/articles/s41556-025-01820-9**
 ---
 
 The pipeline processes 3D fluorescence microscopy datasets, extracts morphology and intensity metrics, and exports publication‑ready measurements and visualizations.
