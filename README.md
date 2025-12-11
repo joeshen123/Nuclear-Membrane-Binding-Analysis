@@ -5,7 +5,7 @@ This repository contains the image-analysis pipeline and code used to quantify n
 **Endoplasmic reticulum disruption stimulates nuclear membrane mechanotransduction.**
 
 **DOI: https://www.nature.com/articles/s41556-025-01820-9**
-
+---
 
 The pipeline processes 3D fluorescence microscopy datasets, extracts morphology and intensity metrics, and exports publication‑ready measurements and visualizations.
 
@@ -24,19 +24,19 @@ Key capabilities
 ## Visualization of Workflow and Segmentation Results
 
   ### Nuclear Segmentation Workflow ###
-![Nuclear Segmentation Workflow](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%201.png)
+![Nuclear Segmentation Workflow](Pipeline%20Image/Nucleus%20Analysis%20Pipeline%201.png)
 
   
  ### Calculation of Nuclear Volume and Protein Adsorption ###
-![Segmentation to Metrics Workflow ](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%202.png)
+![Segmentation to Metrics Workflow ](Pipeline%20Image/Nucleus%20Analysis%20Pipeline%202.png)
 
 
  ### Sample Segmentation Masks Overlay Movie ###
-![Sample Movies with Segmentation Masks Overlay](/Pipeline%20Image/Lamin%20Folds%20Analysis%20Visualization.png)
+![Sample Movies with Segmentation Masks Overlay](Pipeline%20Image/Lamin%20Folds%20Analysis%20Visualization.png)
 
 
  ### Quantification of Nuclear Membrane Invaginations ### 
-![Nuclear Membrane Invagination Analysis Pipeline](/Pipeline%20Image/workflow.gif)
+![Nuclear Membrane Invagination Analysis Pipeline](Pipeline%20Image/workflow.gif)
 
 
 
@@ -137,25 +137,25 @@ The scripts were tested with Python 3.11 on Mac OS Sequoia Version 15.4.1
 - ### Below are the walkthrough of this analysis program.
    
    - **Step 1: Run Nucleus_3D_Anlaysis_Program.py**
-  ![Step1](/Demo%20Data%20Step/step1.png)
+  ![Step1](Demo%20Data%20Step/step1.png)
     
    - **Step 2: Choose Segmentation channel based on nuclear marker**
-  ![Step 2](/Demo%20Data%20Step/Step2.png)
+  ![Step 2](Demo%20Data%20Step/Step2.png)
 
    - **Step 3: Choose whether to analyze only on subset of total timelapse**
-  ![Step 3](/Demo%20Data%20Step/Step3.png)
+  ![Step 3](Demo%20Data%20Step/Step3.png)
 
    - **Step 4: Program is running**
-  ![Step 4](/Demo%20Data%20Step/Step4.png)
+  ![Step 4](Demo%20Data%20Step/Step4.png)
 
    - **Step 5: Use Napari viewer to visualize all intermediate steps and generate quantitative plots**
-  ![Step 5](/Demo%20Data%20Step/Step5.png)
+  ![Step 5](Demo%20Data%20Step/Step5.png)
   
    - **Step 5.5: If **Lamin Analysis** is selected, the pipeline generates additional visualizations and quantitative plots characterizing nuclear membrane folds**
-  ![Step 5.5](/Demo%20Data%20Step/Lamin%20Step.png)
+  ![Step 5.5](Demo%20Data%20Step/Lamin%20Step.png)
    
    - **Step 6: Choose to delete specific tracks (e.g. broken) before saving the intermediate visualizations as hdf5 and analysis resluts as csv**
-   ![Step 6](/Demo%20Data%20Step/Step6.png)
+   ![Step 6](Demo%20Data%20Step/Step6.png)
 
 ## ❓ Troubleshooting
 
