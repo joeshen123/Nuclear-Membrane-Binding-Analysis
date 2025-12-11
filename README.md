@@ -23,12 +23,19 @@ Key capabilities
 
 ## Visualization of Workflow and Segmentation Results
 
+  ### Nuclear Segmentation Workflow ###
 ![Nuclear Segmentation Workflow](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%201.png)
 
+  
+ ### Calculation of Nuclear Volume and Protein Adsorption ###
 ![Segmentation to Metrics Workflow ](/Pipeline%20Image/Nucleus%20Analysis%20Pipeline%202.png)
 
+
+ ### Sample Segmentation Masks Overlay Movie ###
 ![Sample Movies with Segmentation Masks Overlay](/Pipeline%20Image/Lamin%20Folds%20Analysis%20Visualization.png)
 
+
+ ### Quantification of Nuclear Membrane Invaginations ### 
 ![Nuclear Membrane Invagination Analysis Pipeline](/Pipeline%20Image/workflow.gif)
 
 
