@@ -108,7 +108,8 @@ The scripts were tested with Python 3.11 on Mac OS Sequoia Version 15.4.1
    
 4. *(Optional)* **Run** **segmentation_result_visualization.py** to inspect overlays and accuracy of segmentation mask.
 
-Note: All the programs should be run in the virtual envrionment where the packages are installed (Details about creating the envrionment, installing packages and activating the environment before running the program can be found in the Installation step in the Readme).
+**Note: All the programs should be run in the virtual envrionment where the packages are installed (Details about creating the envrionment, installing packages and activating the environment before running the program can be found in the Installation step in the Readme).**
+
 ---
 
 ## 📤 Outputs
