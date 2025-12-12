@@ -16,8 +16,8 @@ Key capabilities
 
 - Robust 3D nuclear segmentation from z‑stacks/time‑lapse movies
 - Morphometrics: volume and nuclear‑membrane folds/invaginations
-- Protein rim↔center binding quantification
-- Protein rim↔LMNB1 (median across nuclear mid‑section) binding quantification
+- Protein rim↔center (nucleoplasmic intensity) binding quantification
+- Protein rim↔LMNB1 (LMNB1 median intensity across nuclear mid‑section) binding quantification
 
 
 ## Visualization of Workflow and Segmentation Results
@@ -75,7 +75,7 @@ This repository contains **three analysis programs** with the same layout:
 
 ## ⚙ Installation
 
-We recommend **micromamba** for environment management. (Conda works as well.) We have provided an environmenmt.yaml file that contains all the packages (with specific versions) for the analysis pipeline.
+We recommend **micromamba** for environment management. (Conda works as well.) We have provided an environmenmt.yaml file that contains the installation instructions of all the packages (with specific versions) for the analysis pipeline.
 
 ```bash
 # Micromamba
@@ -87,7 +87,6 @@ micromamba activate nucleus_analysis
 conda env create -f environment.yaml
 conda activate nucleus_analysis
 ```
-
 ---
 
 ## System Requirement
@@ -109,13 +108,13 @@ The scripts were tested with Python 3.11 on Mac OS Sequoia Version 15.4.1
    
 4. *(Optional)* **Run** **segmentation_result_visualization.py** to inspect overlays and accuracy of segmentation mask.
 
-
+Note: All the programs should be run in the virtual envrionment where the packages are installed (Details about creating the envrionment, installing packages and activating the environment before running the program can be found in the Installation step in the Readme).
 ---
 
 ## 📤 Outputs
 
 - **HDF5 (segmentation)**: labeled/processed image data for downstream checks
-- **CSV (metrics)**: per‑object and/or per‑frame measurements (e.g., volume and protein adsorption ratio )
+- **CSV (metrics)**: per‑object and/or per‑frame measurements (e.g., mid section area,volume, nuclear membrane folds, and protein adsorption ratio )
 
 
 ---
@@ -123,7 +122,7 @@ The scripts were tested with Python 3.11 on Mac OS Sequoia Version 15.4.1
 ## 🧪 Reproducibility
 
 - The **.hdf5** exported by `Image_Import.py` is the canonical intermediate used by the analysis program.
-- Keep acquisition metadata (voxel size, z‑step, channels) with each dataset.
+- Keep acquisition metadata (interval, z‑step, channels) with each dataset.
 - Pin exact versions in `environment.yaml`; consider exporting with `--from-history` to keep it minimal.
 
 ---
